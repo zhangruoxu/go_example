@@ -142,24 +142,131 @@ func testChannelTimeout() {
 	}()
 
 	select {
-	case result := <- c1:
+	case result := <-c1:
 		fmt.Println("Result:", result)
-	case <- time.After(1 * time.Second):
+	case <-time.After(1 * time.Second):
 		fmt.Println("Timeout 1")
 	}
 
-	c2 :=  make(chan string, 1)
+	c2 := make(chan string, 1)
 	go func() {
 		time.Sleep(2 * time.Second)
 		c2 <- "Result 2"
 	}()
 
 	select {
-	case result:= <- c2:
+	case result := <-c2:
 		fmt.Println("Result:", result)
-	case <- time.After(3 * time.Second):
+	case <-time.After(3 * time.Second):
 		fmt.Println("Timeout 2")
 	}
+}
+
+// ============================================
+
+func testClosingChannel() {
+	jobs := make(chan int, 5)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			j, more := <-jobs
+			if more {
+				fmt.Println("Receiving job", j)
+			} else {
+				fmt.Println("Received all jobs")
+				done <- true
+			}
+		}
+	}()
+
+	for i := 0; i < 3; i++ {
+		jobs <- i
+		fmt.Println("Sending job", i)
+	}
+
+	close(jobs)
+	fmt.Println("All jobs are sent.")
+
+	<-done
+}
+
+// ============================================
+
+func testRangeOverChannel() {
+	queue := make(chan string, 2)
+	queue <- "one"
+	queue <- "two"
+
+	close(queue)
+	fmt.Println("Channel closed.")
+
+	for s := range queue {
+		fmt.Println(s)
+	}
+}
+
+// ============================================
+
+func testTimers() {
+	timer1 := time.NewTimer(2 * time.Second)
+
+	fmt.Println("Waiting for timer 1 ...")
+	val := <- timer1.C
+	fmt.Println("Timer 1 fired", val)
+
+	timer2 := time.NewTimer(time.Second)
+	go func() {
+		<- timer2.C
+		fmt.Println("Timer 2 fired.")
+	}()
+
+	stop := timer2.Stop()
+	if stop {
+		fmt.Println("Timer 2 stopped.")
+	}
+}
+
+// ============================================
+
+func testTickers() {
+	ticker := time.NewTicker(500 * time.Millisecond)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <- done:
+				return
+			case t := <- ticker.C:
+				fmt.Println("Tick at", t)
+			}
+		}
+	}()
+
+	time.Sleep(2 * time.Second)
+	ticker.Stop()
+	done <- true
+	fmt.Println("Ticker stopped.")
+}
+
+// ============================================
+// In Java, the termination of the main thread will not cause the termination
+// of other threads spawned from the main thread. Unless one user-created
+// Java threads are running, the Java process will not exit.
+
+// In Golang, the main thread terminates then all the running goroutines terminate.
+// I have no idea why it is.
+
+func testWhenGoroutineStop() {
+	go func() {
+		for i := 0; i < 100; i++ {
+			fmt.Println("Child", i)
+			time.Sleep(time.Second)
+		}
+	}()
+	time.Sleep(5 * time.Second)
+	fmt.Println("Main finished.")
 }
 
 func main() {
@@ -170,5 +277,10 @@ func main() {
 	// testChannelWait()
 	// testChannelBlocking()
 	// testChannelNonBlocking()
-	testChannelTimeout()
+	// testChannelTimeout()
+	// testClosingChannel()
+	// testRangeOverChannel()
+	// testTimers()
+	// testWhenGoroutineStop()
+	testTickers()
 }
