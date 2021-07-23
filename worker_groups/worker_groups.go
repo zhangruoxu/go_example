@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -53,6 +54,29 @@ func workerGroups() {
 	}
 }
 
+// ============================================
+
+func waitGroupWorker(id int, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
+
+	fmt.Printf("Worker %d is staring.\n", id)
+	time.Sleep(time.Second)
+	fmt.Printf("Worker %d ends.\n", id)
+}
+
+func waitGroups() {
+	const numWorkers = 5
+	var waitGroup sync.WaitGroup
+
+	for i := 0; i < numWorkers; i++ {
+		waitGroup.Add(1)
+		go waitGroupWorker(i, &waitGroup)
+	}
+
+	waitGroup.Wait()
+}
+
 func main() {
-	workerGroups()
+	// workerGroups()
+	waitGroups()
 }
