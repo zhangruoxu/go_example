@@ -13,7 +13,7 @@ func main() {
 
 	fmt.Println("Sum:", sum)
 
-	m:= map[string]string{"a": "apple", "b": "banana"}
+	m := map[string]string{"a": "apple", "b": "banana"}
 
 	for k, v := range m {
 		fmt.Printf("Key %v -> value %v\n", k, v)

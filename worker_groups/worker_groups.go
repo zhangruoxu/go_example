@@ -42,7 +42,7 @@ func workerGroups() {
 	// This is quite wierd.
 	// Therefore, we use a goroutine to send jobs.
 	go func() {
-		for j:= 1; j <= numJobs; j++ {
+		for j := 1; j <= numJobs; j++ {
 			jobs <- j
 		}
 		close(jobs)

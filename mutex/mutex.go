@@ -30,7 +30,7 @@ func main() {
 		}()
 	}
 
-	for w := 0; w <=10; w++ {
+	for w := 0; w <= 10; w++ {
 		go func() {
 			for {
 				key := rand.Intn(5)

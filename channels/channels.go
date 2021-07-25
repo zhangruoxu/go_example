@@ -212,12 +212,12 @@ func testTimers() {
 	timer1 := time.NewTimer(2 * time.Second)
 
 	fmt.Println("Waiting for timer 1 ...")
-	val := <- timer1.C
+	val := <-timer1.C
 	fmt.Println("Timer 1 fired", val)
 
 	timer2 := time.NewTimer(time.Second)
 	go func() {
-		<- timer2.C
+		<-timer2.C
 		fmt.Println("Timer 2 fired.")
 	}()
 
@@ -236,9 +236,9 @@ func testTickers() {
 	go func() {
 		for {
 			select {
-			case <- done:
+			case <-done:
 				return
-			case t := <- ticker.C:
+			case t := <-ticker.C:
 				fmt.Println("Tick at", t)
 			}
 		}

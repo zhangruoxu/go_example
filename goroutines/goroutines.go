@@ -15,7 +15,7 @@ func main() {
 	f("Direct")
 	go f("Goroutine")
 
-	go func (msg string) {
+	go func(msg string) {
 		for i := 0; i < 10; i++ {
 			fmt.Println(msg)
 		}

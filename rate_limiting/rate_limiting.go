@@ -19,7 +19,7 @@ func testRateLimiting() {
 	close(requests)
 
 	for r := range requests {
-		limit := <- limiter
+		limit := <-limiter
 		fmt.Printf("Request %v limit %v, time %v\n", r, limit, time.Now())
 	}
 }
@@ -35,7 +35,7 @@ func testBurstyTimer() {
 	}
 
 	go func() {
-		for t:= range time.Tick(200 * time.Millisecond) {
+		for t := range time.Tick(200 * time.Millisecond) {
 			testBurstyTimer <- t
 		}
 	}()
@@ -43,11 +43,11 @@ func testBurstyTimer() {
 	for i := 0; i < NumRequest; i++ {
 		burstyRequests <- i
 	}
-	
+
 	close(burstyRequests)
 
 	for r := range burstyRequests {
-		limit := <- testBurstyTimer
+		limit := <-testBurstyTimer
 		fmt.Printf("Request %v limit %v, time %v\n", r, limit, time.Now())
 	}
 }
