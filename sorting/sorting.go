@@ -40,7 +40,31 @@ func sortLargeArray() {
 	fmt.Println("Is sorted:", sort.IntsAreSorted(ints))
 }
 
+// ============================================
+// Custom sorting
+
+type ByLength []string
+
+func (s ByLength) Len() int {
+	return len(s)
+}
+
+func (s ByLength) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s ByLength) Less(i, j int) bool {
+	return len(s[i]) < len(s[j])
+}
+
+func customSorting() {
+	fruits := []string{"apple", "banana", "kii"}
+	sort.Sort(ByLength(fruits))
+	fmt.Println(fruits)
+}
+
 func main() {
 	// sorting()
-	sortLargeArray()
+	// sortLargeArray()
+	customSorting()
 }
