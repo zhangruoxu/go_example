@@ -96,8 +96,74 @@ func ExamineStructs() {
 	fmt.Printf("Field name %v, type %v, offset %v, is anonymous %v\n", age.Name, age.Type, age.Offset, age.Anonymous)
 }
 
+// ============================================
+
+func InspectValues() {
+	a := 100
+	// Since the receiver type of reflect.ValueOf() is interface{},
+	// assigning to an interface will copy the value
+	// and the value cannot be addressed.
+	va := reflect.ValueOf(a)
+	vp := reflect.ValueOf(&a).Elem()
+	fmt.Printf("Can addressed %v, can set %v\n", va.CanAddr(), va.CanSet())
+	fmt.Printf("Can addressed %v, can set %v\n", vp.CanAddr(), vp.CanSet())
+	vp.SetInt(200)
+	fmt.Println("a =", a)
+	b := 300
+	vp.Set(reflect.ValueOf(&b).Elem())
+	fmt.Println("a =", a)
+}
+
+// ============================================
+// Set fields.
+// Note that unexported fields cannot be modified.
+
+type Object struct {
+	Name string
+}
+
+func setFields() {
+	obj := Object{Name: "Yifei"}
+	fmt.Println(obj)
+	value := reflect.ValueOf(&obj).Elem()
+	nameValue := value.FieldByName("Name")
+	nameValue.Set(reflect.ValueOf("Yifei Zhang"))
+	fmt.Println(obj)
+}
+
+// ============================================
+// Invoke methods.
+// Note that unexported method cannot be found and invoked.
+
+type Adder struct {
+	Left int
+}
+
+func (add Adder) Add(right int) int {
+	return add.Left + right
+}
+
+func invokeMethods() {
+	add := Adder{}
+	value := reflect.ValueOf(&add).Elem()
+	value.FieldByName("Left").Set(reflect.ValueOf(1))
+	fmt.Println("Set field", add)
+	mtd := value.MethodByName("Add")
+	fmt.Printf("Method add, %v, type %T\n", mtd, mtd)
+	args := []reflect.Value{reflect.ValueOf(2)}
+	out := mtd.Call(args)
+	fmt.Printf("Output %v, type %T\n", out, out)
+
+	for _, v := range out {
+		fmt.Println("Output", v)
+	}
+}
+
 func main() {
-	examineTypes()
-	constructingTypes()
-	ExamineStructs()
+	// examineTypes()
+	// constructingTypes()
+	// ExamineStructs()
+	// InspectValues()
+	// setFields()
+	invokeMethods()
 }
