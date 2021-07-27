@@ -269,6 +269,37 @@ func testWhenGoroutineStop() {
 	fmt.Println("Main finished.")
 }
 
+// ============================================
+// Understanding channels and bufferred channels.
+// Sending messages to channels seems a synchronous operation:
+// sending statement is block until there is a goroutine reads from the channel.
+// Consequently, Go provides buffered channels, where the number of buffered messages
+// is specified. Sending messages not exceeding the number of buffered messages
+// will not block the sending statement.
+
+func testBufferedChannels() {
+	msg := make(chan string, 1)
+	done := make(chan bool)
+
+	go func() {
+		msg <- "Message 1"
+		fmt.Println("Message 1 sent.")
+		msg <- "Message 2"
+		fmt.Println("Message 2 sent.")
+		done <- true
+	}()
+
+	go func() {
+		fmt.Println("Sleeping...")
+		time.Sleep(5 * time.Second)
+		fmt.Println(<- msg)
+		done <- true
+	}()
+
+	<- done
+	<- done
+}
+
 func main() {
 	// testChannels()
 	// testChannelSync()
@@ -282,5 +313,6 @@ func main() {
 	// testRangeOverChannel()
 	// testTimers()
 	// testWhenGoroutineStop()
-	testTickers()
+	// testTickers()
+	testBufferedChannels()
 }
